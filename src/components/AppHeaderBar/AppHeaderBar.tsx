@@ -1,21 +1,21 @@
 import { Box, Button, Flex, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text, theme } from '@chakra-ui/react'
-import { useCallback, useContext } from 'react'
-import { passportInstance } from '../../immutable/passport';
 import { shortenAddress } from '../../utils/walletAddress';
 import ImxBalance from '../ImxBalance/ImxBalance';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { CheckoutContext } from '../../contexts/CheckoutContext';
-import { WidgetType } from '@imtbl/sdk/checkout';
+import { useWeb3Modal, useDisconnect} from "@web3modal/ethers5/react"
+import { useCallback, useContext } from 'react';
 import { EIP1193Context } from '../../contexts/EIP1193Context';
+import { passportInstance } from '../../immutable/passport';
 
 export function AppHeaderBar() {
-  const {walletAddress, provider, setProvider, isPassportProvider} = useContext(EIP1193Context);
-  const {openWidget} = useContext(CheckoutContext);
+  const {provider, walletAddress} = useContext(EIP1193Context);
+
+  const {open} = useWeb3Modal()
+  const { disconnect } = useDisconnect()
 
   const logout = useCallback(() => {
-    if(isPassportProvider) passportInstance.logout();
-    else setProvider(null);
-  }, [isPassportProvider, setProvider]);
+    passportInstance.logout();
+  }, []);
 
   return (
     <Flex as={'nav'} 
@@ -31,7 +31,7 @@ export function AppHeaderBar() {
       <Box></Box>
       <Box>
       {(!walletAddress || !provider) 
-        ? (<Button variant="solid" colorScheme='blue' onClick={() => openWidget(WidgetType.CONNECT)}>Connect Wallet</Button>) //(<PassportButton title="Sign in with Immutable" onClick={login} />) 
+        ? (<Button variant="solid" colorScheme='blue' onClick={() => open()}>Connect Wallet</Button>)
         : (
         <Menu>
           <MenuButton as={Button} colorScheme='blue' rightIcon={<ChevronDownIcon />}>
@@ -42,7 +42,8 @@ export function AppHeaderBar() {
           <MenuList minW={40} w={60}>
             <ImxBalance />
             <MenuDivider />
-            <MenuItem onClick={logout}>Logout</MenuItem>
+            <MenuItem onClick={() => disconnect()}>Disconnect Wallet</MenuItem>
+            <MenuItem onClick={logout}>Logout Passport</MenuItem>
           </MenuList>
         </Menu>
       )}

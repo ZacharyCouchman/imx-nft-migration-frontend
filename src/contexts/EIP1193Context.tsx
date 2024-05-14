@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { Web3Provider } from "@ethersproject/providers";
+import { useWeb3ModalProvider, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 export interface EIP1193ContextState {
   provider: Web3Provider | null;
@@ -25,30 +26,21 @@ export const EIP1193ContextProvider = ({children}: EIP1193ContextProvider) => {
   const [walletAddress, setWalletAddress] = useState('');
   const [isPassport, setIsPassport] = useState(false);
 
+  const { walletProvider } = useWeb3ModalProvider()
+  const {address} = useWeb3ModalAccount()
+
   useEffect(() => {
-    if(!provider) {
+    setWalletAddress(address?.toLowerCase() ?? '')
+  }, [address])
+
+  useEffect(() => {
+    if(!walletProvider) {
       setWalletAddress('');
       setIsPassport(false);
       return;
     }
-    
-    const setProviderDetails = async () => {
-      const address = await provider?.getSigner().getAddress();
-      setWalletAddress(address.toLowerCase());
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setIsPassport((provider?.provider as any)?.isPassport === true);
-    }
-    setProviderDetails();
-  }, [provider]);
-
-  useEffect(() => {
-    if(provider && provider.provider) {
-      (provider.provider as any)?.on('accountsChanged', (accounts: string[]) => {
-        setWalletAddress(accounts.length > 0 ? accounts[0].toLowerCase() : "");
-      })
-    }
-  }, [provider])
+    setProvider(new Web3Provider(walletProvider));
+  }, [walletProvider]);
 
   return (
     <EIP1193Context.Provider value={{

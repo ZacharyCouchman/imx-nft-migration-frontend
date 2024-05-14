@@ -11,4 +11,4 @@ export const passportInstance = new passport.Passport({
   scope: "openid offline_access email transact",
 });
 
-export const zkEVMProvider = passportInstance.connectEvm({ announceProvider: true });
+export const zkEVMProvider = passportInstance.connectEvm({ announceProvider: false });
