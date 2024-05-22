@@ -11,6 +11,7 @@ const config = {
     passportRedirectUri: import.meta.env.VITE_SANDBOX_PASSPORT_LOGIN_REDIRECT_URI,
     passportLogoutRedirectUri: import.meta.env.VITE_SANDBOX_PASSPORT_LOGOUT_REDIRECT_URI,
     explorerUrl: "https://explorer.testnet.immutable.com",
+    moralisApiKey: import.meta.env.VITE_MORALIS_API_KEY
   },
   [Environment.PRODUCTION]: {
     immutablePublishableKey: import.meta.env.VITE_MAINNET_IMMUTABLE_PUBLISHABLE_KEY,
@@ -18,6 +19,7 @@ const config = {
     passportRedirectUri: import.meta.env.VITE_MAINNET_PASSPORT_LOGIN_REDIRECT_URI,
     passportLogoutRedirectUri: import.meta.env.VITE_MAINNET_PASSPORT_LOGOUT_REDIRECT_URI,
     explorerUrl: "https://explorer.immutable.com",
+    moralisApiKey: import.meta.env.VITE_MORALIS_API_KEY
   },
 };
 

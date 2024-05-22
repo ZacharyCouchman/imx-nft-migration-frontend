@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { Source } from './components/Source/Source';
 import { Destination } from './components/Destination/Destination';
 import { createWeb3Modal } from '@web3modal/ethers5/react'
-import { Migrate } from './components/Migrate/Migrate';
 import { ethersConfig, imtblzkEvmTestnet, projectId, sepolia } from './config/web3modal';
 
 // Create a Web3Modal instance
@@ -77,7 +76,6 @@ function App() {
             gap={4}
           >
             <Source />
-            <Migrate />
             <Destination />
           </Flex>
       </Flex>
