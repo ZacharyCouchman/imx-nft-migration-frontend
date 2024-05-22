@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardFooter, Flex, Heading, Text, VStack } from "@chakra-ui/react"
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { passportInstance, zkEVMProvider } from "../../immutable/passport";
 import { UserProfile } from "@imtbl/sdk/passport";
 import { parseJwt } from "../../utils/jwt";
@@ -7,6 +7,7 @@ import { shortenAddress } from "../../utils/walletAddress";
 import { EIP1193Context } from "../../contexts/EIP1193Context";
 import { getZkEvmNFTsForAddress } from "../../apis/immutable";
 import { Nft } from "../../types/blockchainData";
+import Countdown from "../Countdown/Countdown";
 
 const DESTINATION_TOKEN_ADDRESS = '0xEc672172B6dc766Bc9656086b97B17162946e815';
 const USE_PASSPORT = false;
@@ -17,8 +18,10 @@ export const Destination = () => {
   const [passportUserInfo, setPassportUserInfo] = useState<UserProfile | null>(null);
   const [passportAddress, setPassportAddress] = useState<string>("");
 
+  const [fetchNFTsRefresh, setFetchNFTsRefresh] = useState(false);
   const [fetchNFTsLoading, setFetchNFTsLoading] = useState(false);
   const [zkEvmNFTs, setZkEvmNFTs] = useState<Nft[]>([]);
+  const [countdownEndTime, setCountdownEndTime] = useState(0);
 
   const connectPassport = async () => {
     try{
@@ -35,12 +38,26 @@ export const Destination = () => {
     }
   }
 
-  const fetchNFTs = async () => {
+  const fetchNFTs = useCallback(async () => {
     if(!walletAddress) return;
+    setFetchNFTsRefresh(true);
+    setCountdownEndTime((new Date().getTime() + 10000)/1000)
     setFetchNFTsLoading(true);
     const results = await getZkEvmNFTsForAddress(walletAddress, DESTINATION_TOKEN_ADDRESS);
     setZkEvmNFTs((results || []) as unknown as Nft[]);
     setFetchNFTsLoading(false);
+  }, [walletAddress]);
+
+  const handleFetchNFTsClick = async () => {
+    if(!walletAddress) return;
+    window.addEventListener('refresh-zkevm-nfts', fetchNFTs);
+    await fetchNFTs();
+  }
+
+  const stopRefresh = () => {
+    window.removeEventListener('refresh-zkevm-nfts', fetchNFTs)
+    setCountdownEndTime(0);
+    setFetchNFTsRefresh(false);
   }
 
   useEffect(() => {
@@ -60,6 +77,12 @@ export const Destination = () => {
     loadPassportInfo();
   }, [])
 
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('refresh-zkevm-nfts', fetchNFTs)
+    }
+  }, [fetchNFTs])
+
   return (
     <Card minH={"600px"} minW="xs" w={["100%", "430px"]} bgColor={'rgba(0,0,0,0.75)'}>
       <CardBody>
@@ -78,7 +101,16 @@ export const Destination = () => {
         </VStack>
       </CardBody>
       <CardFooter display={"flex"} flexDirection={"column"}>
-        {walletAddress && <Button colorScheme="blue" onClick={fetchNFTs}>Fetch Immutable zkEVM NFTs</Button>}
+        {!fetchNFTsRefresh && walletAddress && <Button colorScheme="blue" onClick={handleFetchNFTsClick}>Fetch Immutable zkEVM NFTs</Button>}
+        {fetchNFTsRefresh && (
+          <Flex justifyContent={'space-between'} alignItems={'center'}>
+            <Flex gap={2} alignItems={'center'}>
+              <Text size={'sm'} fontWeight={'bold'}>Refreshing your NFT list in:</Text><Countdown size="sm" deadlineEventTopic="refresh-zkevm-nfts" endTime={countdownEndTime} />
+            </Flex>
+            <Button size={'xs'} borderRadius={8} colorScheme="blue" onClick={stopRefresh}>Stop refresh</Button>
+          </Flex>
+          )}
+        
         {USE_PASSPORT && !passportUserInfo && <Button colorScheme="pink" onClick={connectPassport}>Connect Passport</Button>}
       </CardFooter>
     </Card>
