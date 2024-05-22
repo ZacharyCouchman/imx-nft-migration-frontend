@@ -4,46 +4,14 @@ import { AppHeaderBar } from './components/AppHeaderBar/AppHeaderBar';
 import { useEffect, useState } from 'react';
 import { Source } from './components/Source/Source';
 import { Destination } from './components/Destination/Destination';
-import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
+import { createWeb3Modal } from '@web3modal/ethers5/react'
 import { Migrate } from './components/Migrate/Migrate';
+import { ethersConfig, imtblzkEvmTestnet, projectId, sepolia } from './config/web3modal';
 
-// 1. Get projectId
-const projectId = 'e5531fbe9d029d502b2c640d567ea40b'
-
-// 2. Set chains
-const mainnet = {
-  chainId: 1,
-  name: 'Ethereum',
-  currency: 'ETH',
-  explorerUrl: 'https://etherscan.io',
-  rpcUrl: 'https://cloudflare-eth.com'
-}
-
-// 3. Create a metadata object
-const metadata = {
-  name: 'Immutable zkEVM Token Migration',
-  description: 'Migrate NFTs to Immutable zkEVM',
-  url: 'http://localhost:5173', // origin must match your domain & subdomain
-  icons: []
-}
-
-// 4. Create Ethers config
-const ethersConfig = defaultConfig({
-  /*Required*/
-  metadata,
-
-  /*Optional*/
-  enableEIP6963: true, // true by default
-  enableInjected: true, // true by default
-  enableCoinbase: true, // true by default
-  rpcUrl: '...', // used for the Coinbase SDK
-  defaultChainId: 1, // used for the Coinbase SDK
-})
-
-// 5. Create a Web3Modal instance
+// Create a Web3Modal instance
 createWeb3Modal({
   ethersConfig,
-  chains: [mainnet],
+  chains: [sepolia, imtblzkEvmTestnet],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   themeMode: 'light',
@@ -51,7 +19,6 @@ createWeb3Modal({
     '--w3m-color-mix': '#007dbb',
     '--w3m-color-mix-strength': 30,
     '--w3m-border-radius-master': '1px'
-
   }
 })
 
