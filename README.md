@@ -1,10 +1,28 @@
-# Immutable Passport Sample React
+# Immutable Examples React
 
-This example shows how to get started with using Immutable Passport in your web project.
+This repository contains example projects for common functionlaity when integrating with Immutable zkEVM.
 
-[Documentation for Immutable Passport](https://docs.immutable.com/docs/zkEVM/products/passport)
+Each project has it's own branch. The main branch is called `template` and is used as a basic demo of Immutable Passport and Checkout but also being used as the base for other projects.
+
+## Projects
+
+`template` - the base template branch which contains basic setup and use of Passport and Checkout
+
+`free-mint` - a free mint template to use with the minting-api-backend repo. Allows projects to run a free mint on Immutable zkEVM with multiple phases and whitelist abilities.
+
+`nft-token-migration` - a token migration template to use with token-migration-backend repo. Allows projects to migrate NFTs from another chain and mint a corresponding NFT on Immutable zkEVM. Can be used to migrate from original wallet to Immutable Passport.
+
+## Disclaimer
+
+The sample code provided is for reference purposes only and is not officially supported by Immutable. It has undergone best effort testing by Immutable to ensure basic functionality. However, it is essential that you thoroughly test this sample code within your own environment to confirm its functionality and reliability before deploying it in a production setting. Immutable disclaims any liability for any issues that arise due to the use of this sample code. By using this sample code, you agree to perform due diligence in testing and verifying its suitability for your applications.
+
+## Prerequisites
+
+- Node v18, npm v10
 
 ## Get Started
+
+Checkout the project branch that you want from above.
 
 Install the latest version of the @imtbl/sdk.
 
