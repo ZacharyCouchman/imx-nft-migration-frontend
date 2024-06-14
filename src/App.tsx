@@ -13,10 +13,8 @@ createWeb3Modal({
   chains: [sepolia, imtblzkEvmTestnet],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
-  themeMode: 'light',
+  themeMode: 'dark',
   themeVariables: {
-    '--w3m-color-mix': '#007dbb',
-    '--w3m-color-mix-strength': 30,
     '--w3m-border-radius-master': '1px'
   }
 })

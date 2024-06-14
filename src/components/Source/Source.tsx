@@ -1,11 +1,10 @@
-import { Button, Card, CardBody, CardFooter, Flex, Heading, Spinner, Text, VStack } from "@chakra-ui/react"
+import { Button, Card, CardBody, CardFooter, Flex, Heading, Image, Spinner, Text, VStack } from "@chakra-ui/react"
 import { useContext, useState } from "react";
 import { EIP1193Context } from "../../contexts/EIP1193Context";
 import {useWeb3Modal} from "@web3modal/ethers5/react"
-import { getNFTsForAddress } from "../../apis/moralis";
+import { getNFTsForAddress } from "../../apis/migration";
 import { Contract } from "ethers";
 import { TransactionResponse } from "@ethersproject/providers";
-import { EvmNft } from "@moralisweb3/common-evm-utils";
 
 const SOURCE_TOKEN_ADDRESS = "0x9a120e1219128d944feb53b76b018f4fffea1b0a";
 const SOURCE_TOKEN_ABI_FOR_BURN = [
@@ -17,7 +16,7 @@ export const Source = () => {
   const {open} = useWeb3Modal()
 
   const [fetchNFTsLoading, setFetchNFTsLoading] = useState(false);
-  const [sourceNFTs, setSourceNFTs] = useState<EvmNft[]>([]);
+  const [sourceNFTs, setSourceNFTs] = useState<{tokenId: string}[]>([]);
 
   const [burnLoading, setBurnLoading] = useState(false);
 
@@ -72,6 +71,7 @@ export const Source = () => {
         <VStack mt="6" gap={4} alignItems={"center"}>
           <Heading size="lg">Sepolia</Heading>
           <Text>Connect to your wallet that holds the NFTs</Text>
+          <Image src="https://zacharycouchman.github.io/nft-project-metadata-immutable/cryptobirds.webp" width={200} alt="CryptoBirds" borderRadius={8} />
           {!fetchNFTsLoading && !burnLoading && sourceNFTs.length > 0 && sourceNFTs.map((sourceNFT) => (
             <Flex key={sourceNFT.tokenId} flexDirection={'row'} gap={4} justifyContent={'center'} alignItems={'center'}><Button onClick={() => burnNFT(sourceNFT.tokenId.toString())}>Migrate token {sourceNFT.tokenId}</Button></Flex>
           ))}

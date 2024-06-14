@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, Flex, Heading, Text, VStack } from "@chakra-ui/react"
+import { Button, Card, CardBody, CardFooter, Flex, Image, Heading, Text, VStack } from "@chakra-ui/react"
 import { useCallback, useContext, useEffect, useState } from "react";
 import { passportInstance, zkEVMProvider } from "../../immutable/passport";
 import { UserProfile } from "@imtbl/sdk/passport";
@@ -84,10 +84,12 @@ export const Destination = () => {
   }, [fetchNFTs])
 
   return (
-    <Card minH={"600px"} minW="xs" w={["100%", "430px"]} bgColor={'rgba(0,0,0,0.75)'}>
+    <Card h={"600px"} minW="xs" w={["100%", "430px"]} bgColor={'rgba(0,0,0,0.75)'}>
       <CardBody>
-        <VStack mt="6" gap={4} alignItems={"center"}>
+        <VStack h={450} overflowY={"scroll"} mt="6" gap={4} alignItems={"center"} textAlign={'center'}>
           <Heading size="lg" overflowWrap={"break-word"}>Immutable zkEVM</Heading>
+          <Text>Receive your NFTs on Immutable zkEVM after migration</Text>
+          <Image src="https://zacharycouchman.github.io/nft-project-metadata-immutable/cryptobirds.webp" width={200} alt="CryptoBirds" borderRadius={8} />
           {USE_PASSPORT && (
             <VStack gap={2} alignItems={"center"}>
               <Text>Connect to your Passport wallet</Text>
@@ -96,7 +98,9 @@ export const Destination = () => {
             </VStack>
           )}
           {!fetchNFTsLoading && zkEvmNFTs.length > 0 && zkEvmNFTs.map((zkEvmNFT: Nft) => (
-              <Flex key={zkEvmNFT.token_id} flexDirection={'row'} gap={4} justifyContent={'center'} alignItems={'center'}>{zkEvmNFT.token_id}</Flex>
+              <Flex key={zkEvmNFT.token_id} flexDirection={'row'} gap={4} justifyContent={'flex-start'} alignItems={'flex-start'} p={4} borderRadius={4}>
+                <Heading size="md" wordBreak={"break-word"}>zkEVM Token {zkEvmNFT.token_id}</Heading>
+              </Flex>
           ))}
         </VStack>
       </CardBody>
