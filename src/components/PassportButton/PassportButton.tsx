@@ -12,8 +12,8 @@ export function PassportButton({ title, onClick }: PassportButtonProps) {
     <Button 
       onClick={onClick} 
       backgroundColor="#F3F3F3"
-      height="48px"
-      borderRadius="48px"
+      height="32px"
+      borderRadius="32px"
       display="flex"
       alignItems="center"
       justifyContent="flex-start"
@@ -22,7 +22,7 @@ export function PassportButton({ title, onClick }: PassportButtonProps) {
       _hover={{ bg: "#e2e2e2" }} // optional hover effect
       _active={{ bg: "#d1d1d1" }} // optional active state effect
     >
-      <Box marginRight="12px" height="32px" width="32px" as={PassportSymbol} />
+      <Box marginRight="12px" height="20px" width="20px" as={PassportSymbol} />
       <Text>{title}</Text>
     </Button>
   );

@@ -1,7 +1,7 @@
 import { defaultConfig } from "@web3modal/ethers5/react"
 
 // 1. Get projectId
-export const projectId = 'e5531fbe9d029d502b2c640d567ea40b'
+export const projectId = import.meta.env.VITE_WALLET_CONNECT_PROJECTID!;
 
 // 2. Set chains
 export const mainnet = {
@@ -12,13 +12,20 @@ export const mainnet = {
   rpcUrl: 'https://cloudflare-eth.com'
 }
 
-// 2. Set chains
 export const sepolia = {
   chainId: 11155111,
   name: 'Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.etherscan.io',
   rpcUrl: 'https://eth-sepolia.g.alchemy.com/v2/demo'
+}
+
+export const polygon = {
+  chainId: 137,
+  name: 'Polygon Mainnet',
+  currency: 'MATIC',
+  explorerUrl: 'https://polygonscan.com/',
+  rpcUrl: 'https://polygon-rpc.com'
 }
 
 export const imtblzkEvmTestnet = {
@@ -41,7 +48,7 @@ export const imtblzkEvmMainnet = {
 export const metadata = {
   name: 'Immutable zkEVM Token Migration',
   description: 'Migrate NFTs to Immutable zkEVM',
-  url: 'http://localhost:5173', // origin must match your domain & subdomain
+  url: 'http://localhost:5174', // origin must match your domain & subdomain
   icons: []
 }
 

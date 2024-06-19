@@ -10,6 +10,7 @@ import { passportInstance } from './immutable/passport';
 import { CheckoutProvider } from './contexts/CheckoutContext';
 import { checkoutInstance } from './immutable/checkout';
 import { EIP1193ContextProvider } from './contexts/EIP1193Context';
+import { MigrationProvider } from './contexts/MigrationContext';
 
 const router = createBrowserRouter([
   {
@@ -30,7 +31,9 @@ root.render(
     <ChakraProvider theme={theme}>
       <EIP1193ContextProvider>
         <CheckoutProvider checkout={checkoutInstance}>
-          <RouterProvider router={router} />
+          <MigrationProvider>
+            <RouterProvider router={router} />
+          </MigrationProvider>
         </CheckoutProvider>
       </EIP1193ContextProvider>
     </ChakraProvider>

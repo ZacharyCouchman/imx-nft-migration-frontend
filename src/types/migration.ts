@@ -1,0 +1,1 @@
+export type TokenBurn = { tokenId: string; transactionHash: string }

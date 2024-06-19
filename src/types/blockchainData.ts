@@ -31,3 +31,20 @@ export interface Chain {
   id: string;
   name: string;
 }
+
+export interface Collection {
+  base_uri: string;
+  chain: Chain;
+  contract_address: string;
+  contract_type: string;
+  contract_uri: string;
+  description: string;
+  external_link: string;
+  image: string;
+  indexed_at: Date;
+  metadata_synced_at: Date;
+  name: string;
+  symbol: string;
+  updated_at: Date;
+  verification_status: string;
+}

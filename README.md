@@ -1,16 +1,7 @@
-# Immutable Examples React
 
-This repository contains example projects for common functionlaity when integrating with Immutable zkEVM.
+# NFT Token Migration
 
-Each project has it's own branch. The main branch is called `template` and is used as a basic demo of Immutable Passport and Checkout but also being used as the base for other projects.
-
-## Projects
-
-`template` - the base template branch which contains basic setup and use of Passport and Checkout
-
-`free-mint` - a free mint template to use with the minting-api-backend repo. Allows projects to run a free mint on Immutable zkEVM with multiple phases and whitelist abilities.
-
-`nft-token-migration` - a token migration template to use with token-migration-backend repo. Allows projects to migrate NFTs from another chain and mint a corresponding NFT on Immutable zkEVM. Can be used to migrate from original wallet to Immutable Passport.
+This project provides the functionality for users to burn tokens on the source chain and have them minted on Immutable zkEVM. It is meant to be used in conjunction with the webhook backend migration repo [here]().
 
 ## Disclaimer
 
@@ -31,9 +22,44 @@ npm install @imtbl/sdk
 npm i
 ```
 
+This project uses the Web3Modal SDK from WalletConnect to provide a large selection of available wallet connections to the application. This requries a project to be set up in [WalletConnect cloud](https://cloud.walletconnect.com/). Setup an account and a project and copy the projectId.
+
+1. Determine the source/origin chain that the existing NFT contract is deployed on. This is the collection of NFTs that will be burnt (transferred to the burn address) as part of the process.
+2. Determie the destination chain that your contract collection is depolyed on. This is the collection where the migrated tokens will be minted.
+3. Update the `web3modal` configuration to enable wallets to connect to the source and destination chains. 
+  - Go to `src/config/web3modal.ts` and add the project Id from the wallet connect cloud project. Then create a chain configuration for each of your source and destination chains for the migration.
+  ```ts
+  export const projectId = ''
+
+  export const sepolia = {
+    chainId: 11155111,
+    name: 'Sepolia',
+    currency: 'ETH',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    rpcUrl: 'https://eth-sepolia.g.alchemy.com/v2/demo'
+  }
+  export const imtblzkEvmTestnet = {
+    chainId: 13473,
+    name: 'Immutable zkEVM Testnet',
+    currency: 'tIMX',
+    explorerUrl: 'https://explorer.testnet.immutable.com',
+    rpcUrl: 'https://rpc.testnet.immutable.com'
+  }
+  ```
+  - In `App.tsx` include the source in destination chains in `createWeb3Modal()` function call in the chains array
+  ```ts
+    createWeb3Modal({
+    chains: [sepolia, imtblzkEvmTestnet],
+    // ... other web3modal config
+    })
+  ```
+
+
 ## Add configuration
 
-Rename .env.example to .env, replace all of the variables with your own project variables from https://hub.immutable.com
+Rename .env.example to .env, replace all of the variables with your own project variables from https://hub.immutable.com.
+
+Update all of the site configuration variables accordingly to configure the project to work with your source contract on the origin chain and the destination contract on Immutable zkEVM. These environment variables should match with what you have configured in the backend code.
 
 
 ## Start
