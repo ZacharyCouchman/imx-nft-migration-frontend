@@ -48,7 +48,7 @@ export const imtblzkEvmMainnet = {
 export const metadata = {
   name: 'Immutable zkEVM Token Migration',
   description: 'Migrate NFTs to Immutable zkEVM',
-  url: 'http://localhost:5174', // origin must match your domain & subdomain
+  url: import.meta.env.VITE_SANDBOX_PASSPORT_LOGOUT_REDIRECT_URI!, // origin must match your domain & subdomain
   icons: []
 }
 
