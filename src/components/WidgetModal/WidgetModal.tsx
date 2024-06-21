@@ -2,7 +2,7 @@ import { Modal, ModalContent, theme } from '@chakra-ui/react'
 import { BridgeEventType, ConnectEventType, ConnectionSuccess, OnRampEventType, OrchestrationEventType, ProviderEventType, ProviderUpdated, RequestBridgeEvent, RequestOnrampEvent, RequestSwapEvent, SwapEventType, WalletEventType, WidgetType } from '@imtbl/sdk/checkout'
 import { CheckoutContext } from '../../contexts/CheckoutContext';
 import { useContext, useEffect } from 'react';
-import { EIP1193Context } from '../../contexts/EIP1193Context';
+import { EIP1193Context, EIP1193Provider } from '../../contexts/EIP1193Context';
 
 interface WidgetModal {
   widgetType: WidgetType;
@@ -48,10 +48,10 @@ function WidgetModal({
         connect.addListener(ConnectEventType.SUCCESS, (data: ConnectionSuccess) => {
           onClose();
           connect.unmount();
-          setProvider(data.provider);
+          setProvider(data.provider.provider as EIP1193Provider);
         })
         connect.addListener(ProviderEventType.PROVIDER_UPDATED, (data: ProviderUpdated) => {
-          setProvider(data.provider);
+          setProvider(data.provider.provider as EIP1193Provider);
         })
         // Hack to get to render
         const render = Promise.resolve();

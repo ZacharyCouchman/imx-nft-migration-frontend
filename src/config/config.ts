@@ -16,6 +16,7 @@ const config = {
       allowOriginMint: import.meta.env.VITE_ALLOW_ORIGIN_MINT === "true",
       sourceCollectionImage: import.meta.env.VITE_SOURCE_COLLECTION_IMAGE!,
       sourceTokenAddress: import.meta.env.VITE_SOURCE_TOKEN_ADDRESS!,
+      sourceChainId: parseInt(import.meta.env.VITE_SOURCE_CHAIN_ID!),
       sourceChainName: import.meta.env.VITE_SOURCE_CHAIN_NAME!,
       burnAddress: import.meta.env.VITE_BURN_ADDRESS!,
       destinationChainName: import.meta.env.VITE_DESTINATION_CHAIN_NAME!,
@@ -32,8 +33,9 @@ const config = {
     migration: {
       allowOriginMint: import.meta.env.VITE_ALLOW_ORIGIN_MINT === "true",
       sourceCollectionImage: import.meta.env.VITE_SOURCE_COLLECTION_IMAGE!,
-      sourceTokenAddress: import.meta.env.VITE_SOURCE_TOKEN_ADDRESS!,
+      sourceChainId: parseInt(import.meta.env.VITE_SOURCE_CHAIN_ID!),
       sourceChainName: import.meta.env.VITE_SOURCE_CHAIN_NAME!,
+      sourceTokenAddress: import.meta.env.VITE_SOURCE_TOKEN_ADDRESS!,
       burnAddress: import.meta.env.VITE_BURN_ADDRESS!,
       destinationChainName: import.meta.env.VITE_DESTINATION_CHAIN_NAME!,
       destinationTokenAddress: import.meta.env.VITE_DESTINATION_TOKEN_ADDRESS!,

@@ -1,9 +1,9 @@
-import { Button, Card, CardBody, Flex, Heading, Image as ChakraImage, Link, Spinner, Text, VStack } from "@chakra-ui/react"
+import { Button, Card, CardBody, Flex, Heading, Image as ChakraImage, Link, Spinner, Text, VStack, useToast } from "@chakra-ui/react"
 import { useCallback, useContext, useEffect, useState } from "react";
 import { EIP1193Context } from "../../contexts/EIP1193Context";
 import { getNFTsForAddress } from "../../apis/migration";
 import { Contract } from "ethers";
-import { TransactionResponse } from "@ethersproject/providers";
+import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import { SOURCE_TOKEN_ABI } from "../../config/migration";
 import { TokenBurn } from "../../types/migration";
 import { MigrationContext } from "../../contexts/MigrationContext";
@@ -14,6 +14,7 @@ interface Source {
 export const Source = ({passportAddress}: Source) => {
   const { provider, walletAddress } = useContext(EIP1193Context);
   const { successfulBurns, setSuccessfulBurns } = useContext(MigrationContext);
+  const toast = useToast();
 
   const [fetchNFTsLoading, setFetchNFTsLoading] = useState(false);
   const [sourceNFTs, setSourceNFTs] = useState<{tokenId: string}[]>([]);
@@ -28,17 +29,36 @@ export const Source = ({passportAddress}: Source) => {
   }, [walletAddress])
 
   const burnNFT = async (tokenId: string) => {
-    if(!provider) return;
+    if(!provider || !provider.request) return;
+
+    // Check network first
+    const currentProviderChain = await provider!.request({method: 'eth_chainId'});
+    if(currentProviderChain !== config[applicationEnvironment].migration.sourceChainId) {
+      // must switch to source chain
+      try {
+        await provider.request({method: 'wallet_switchEthereumChain', params: [{chainId: `0x${config[applicationEnvironment].migration.sourceChainId.toString(16)}`}]})
+      } catch(err) {
+        console.log(err);
+        return;
+      }
+    }
 
     let burnTransaction: TransactionResponse | null = null;
     setBurnLoading(true);
+    const web3Provider = new Web3Provider(provider);
     try{
       const sourceNFTContract = new Contract(
         config[applicationEnvironment].migration.sourceTokenAddress,
         SOURCE_TOKEN_ABI,
-        provider.getSigner()
+        web3Provider.getSigner()
       )
       burnTransaction = await sourceNFTContract.safeTransferFrom(walletAddress, config[applicationEnvironment].migration.burnAddress, tokenId);
+      toast({
+        position: 'bottom-right',
+        status: 'success',
+        duration: 4000,
+        title: 'Burn transaction sent, please wait...'
+      })
       console.log(burnTransaction);
       console.log('Waiting for transaction...')
     } catch(err) {
@@ -54,8 +74,20 @@ export const Source = ({passportAddress}: Source) => {
       if(receipt.status === 1){
         console.log('Success')
         setSuccessfulBurns((prev) => [{tokenId, transactionHash: receipt.transactionHash}, ...prev])
+        toast({
+          position: 'bottom-right',
+          status: 'success',
+          duration: 4000,
+          title: 'Token burn successful'
+        })
       } else {
         console.log('Transaction reverted');
+        toast({
+          position: 'bottom-right',
+          status: 'error',
+          duration: 4000,
+          title: 'Token burn failed, transaction reverted'
+        })
       }
     } catch(err) {
       console.log(err);

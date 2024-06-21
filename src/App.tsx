@@ -1,13 +1,13 @@
 // App.tsx
-import { Box, Flex, Spinner, Button, Heading } from '@chakra-ui/react';
+import { Box, Flex, Spinner, Button, Heading, useToast } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 import { Source } from './components/Source/Source';
 import { Destination } from './components/Destination/Destination';
 import { createWeb3Modal } from '@web3modal/ethers5/react'
-import { ethersConfig, imtblzkEvmTestnet, polygon, projectId } from './config/web3modal';
+import { ethersConfig, polygon, projectId } from './config/web3modal';
 import config, { applicationEnvironment } from './config/config';
 import { EIP1193Context } from './contexts/EIP1193Context';
-import { TransactionResponse } from '@ethersproject/providers';
+import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 import { SOURCE_TOKEN_ABI } from './config/migration';
 import { WalletMapping } from './components/WalletMapping/WalletMapping';
@@ -15,7 +15,7 @@ import { WalletMapping } from './components/WalletMapping/WalletMapping';
 // Create a Web3Modal instance
 createWeb3Modal({
   ethersConfig,
-  chains: [polygon, imtblzkEvmTestnet],
+  chains: [polygon],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   themeMode: 'dark',
@@ -28,8 +28,10 @@ const BACKGROUND_IMAGE_URL = "https://assets-global.website-files.com/646557ee45
 
 function App() {
   const [sourceLoaded, setSourceLoaded] = useState<string>();
-  const {provider, walletAddress} = useContext(EIP1193Context);
+  const {provider, walletAddress, chainId} = useContext(EIP1193Context);
+  const toast = useToast();
   const [passportAddress, setPassportAddress] = useState<string>("");
+  const [mintLoading, setMintLoading] = useState(false);
 
   useEffect(() => {
     const src = BACKGROUND_IMAGE_URL;
@@ -45,22 +47,42 @@ function App() {
    */
   const handleOriginNFTMint = async () => {
     if(!provider || !walletAddress) return;
+    setMintLoading(true);
 
+    // Check network first
+    if(chainId !== config[applicationEnvironment].migration.sourceChainId) {
+      // must switch to source chain
+      try {
+        await provider.request!({method: 'wallet_switchEthereumChain', params: [{chainId: `0x${config[applicationEnvironment].migration.sourceChainId.toString(16)}`}]})
+      } catch(err) {
+        console.log(err);
+        setMintLoading(false);
+        return;
+      }
+    }
+    
     let mintTransaction: TransactionResponse | null = null;
     // setBurnLoading(true);
     try{
+      const web3Provider = new Web3Provider(provider);
       const sourceNFTContract = new Contract(
         config[applicationEnvironment].migration.sourceTokenAddress,
         SOURCE_TOKEN_ABI,
-        provider.getSigner()
+        web3Provider.getSigner()
       )
       mintTransaction = await sourceNFTContract.mint(walletAddress);
+      toast({
+        position: 'bottom-right',
+        status: 'success',
+        duration: 4000,
+        title: 'Minting token, please wait...'
+      })
       console.log(mintTransaction);
       console.log('Waiting for transaction...')
     } catch(err) {
       console.log(err);
       console.log("There was an error sending the transaction");
-      // setBurnLoading(false);
+      setMintLoading(false);
     }
     if(!mintTransaction) return;
 
@@ -68,6 +90,12 @@ function App() {
       const receipt = await mintTransaction.wait(1);
       console.log(receipt);
       if(receipt.status === 1){
+        toast({
+          position: 'bottom-right',
+          status: 'success',
+          duration: 4000,
+          title: 'Token minted'
+        })
         console.log('Success')
       } else {
         console.log('Transaction reverted');
@@ -75,7 +103,7 @@ function App() {
     } catch(err) {
       console.log(err);
     } finally {
-      // setBurnLoading(false);
+      setMintLoading(false);
     }
   }
 
@@ -115,6 +143,7 @@ function App() {
             left={4} 
             onClick={handleOriginNFTMint}
             zIndex={10}
+            isLoading={mintLoading}
             >Mint Origin NFT</Button>
         }
         <Box zIndex={1} paddingX={4} paddingY={4}>

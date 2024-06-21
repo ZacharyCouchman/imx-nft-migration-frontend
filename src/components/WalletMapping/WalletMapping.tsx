@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Text } from "@chakra-ui/react"
+import { Button, Card, Flex, Text, useToast } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { EIP1193Context } from "../../contexts/EIP1193Context"
 import { shortenAddress } from "../../utils/walletAddress";
@@ -7,6 +7,7 @@ import { UserProfile } from "@imtbl/sdk/passport";
 import { parseJwt } from "../../utils/jwt";
 import { useDisconnect, useWeb3Modal } from "@web3modal/ethers5/react";
 import { createAddressMapping, getAddressMapping } from "../../apis/migration";
+import { Web3Provider } from "@ethersproject/providers";
 
 interface WalletMapping {
   passportAddress: string;
@@ -19,6 +20,7 @@ export const WalletMapping = ({
   const {provider, walletAddress} = useContext(EIP1193Context);
   const {open} = useWeb3Modal()
   const { disconnect } = useDisconnect()
+  const toast = useToast();
 
   const [passportUserInfo, setPassportUserInfo] = useState<UserProfile | null>(null);
 
@@ -43,10 +45,12 @@ export const WalletMapping = ({
 
   const createAddressMap = async () => {
     if(!provider) return;
+
+    const web3Provider = new Web3Provider(provider);
     setAddressMapLoading(true);
     let signature: string = "";
     try{
-      signature = await provider.getSigner().signMessage(`I want to map my EOA address to my Passport address. Here is my Passport adddress: ${passportAddress}`);
+      signature = await web3Provider.getSigner().signMessage(`I want to map my EOA address to my Passport address. Here is my Passport adddress: ${passportAddress}`);
     } catch(error) {
       console.error(error)
       setAddressMapLoading(false)
@@ -83,9 +87,17 @@ export const WalletMapping = ({
         try{
           const result = await getAddressMapping(walletAddress);
           console.log(result)
-          if(!result) setAddressMap(false);
-
-          if(result) setAddressMap(true);
+          if(result) {
+            setAddressMap(true);
+          } else {
+            toast({
+              position: 'bottom-right',
+              status: 'error',
+              duration: 4000,
+              title: 'Address mapping not found'
+            })
+            setAddressMap(false);
+          }
         } catch(err) {
           console.log(err)
         }
