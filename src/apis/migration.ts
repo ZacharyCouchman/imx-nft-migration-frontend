@@ -44,27 +44,63 @@ export async function getAddressMapping(originWallet: string) {
 
 export async function createAddressMapping(originWallet: string, signature: string) {
   const idToken = await passportInstance.getIdToken();
+  const response = await fetch(`${baseUrl}/address-mapping`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${idToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      originWalletAddress: originWallet,
+      signature: signature
+    })
+  })
+
+  const result = await response.json();
+
+  if (response.status === 401) {
+    alert(result.error.toString())
+  }
+
+  return result;
+}
+
+export async function getEOAAddressMapping(originWallet: string) {
   try {
-    const response = await fetch(`${baseUrl}/address-mapping`, {
-      method: 'POST',
+    const response = await fetch(`${baseUrl}/eoa-mapping/${originWallet.toLowerCase()}`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        originWalletAddress: originWallet,
-        signature: signature
-      })
+      }
     })
 
-    const result = await response.json();
-
-    if (response.status === 401) {
-      alert(result.error.toString())
+    if (response.status < 200 || response.status > 299) {
+      throw new Error(`Unable to fetch address mapping. Returned with ${response.status}.`)
     }
 
+    const result = await response.json();
     return result;
   } catch (err) {
-    console.log(err)
+    console.error(err);
+  }
+}
+
+export async function getPassportAddressMapping(destinationWallet: string) {
+  try {
+    const response = await fetch(`${baseUrl}/passport-mapping/${destinationWallet.toLowerCase()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.status < 200 || response.status > 299) {
+      throw new Error(`Unable to fetch address mapping. Returned with ${response.status}.`)
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.error(err);
   }
 }

@@ -11,6 +11,7 @@ import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 import { SOURCE_TOKEN_ABI } from './config/migration';
 import { WalletMapping } from './components/WalletMapping/WalletMapping';
+import { MigrationContext } from './contexts/MigrationContext';
 
 // Create a Web3Modal instance
 createWeb3Modal({
@@ -29,8 +30,8 @@ const BACKGROUND_IMAGE_URL = "https://assets-global.website-files.com/646557ee45
 function App() {
   const [sourceLoaded, setSourceLoaded] = useState<string>();
   const {provider, walletAddress, chainId} = useContext(EIP1193Context);
+  const {passportAddress, setPassportAddress} = useContext(MigrationContext);
   const toast = useToast();
-  const [passportAddress, setPassportAddress] = useState<string>("");
   const [mintLoading, setMintLoading] = useState(false);
 
   useEffect(() => {
@@ -96,7 +97,6 @@ function App() {
           duration: 4000,
           title: 'Token minted'
         })
-        console.log('Success')
       } else {
         console.log('Transaction reverted');
       }
@@ -157,8 +157,8 @@ function App() {
           alignItems={"center"}
           gap={4}
         >
-          <Source passportAddress={passportAddress} />
-          <Destination passportAddress={passportAddress} />
+          <Source />
+          <Destination />
         </Flex>
       </Flex>
     </Flex>

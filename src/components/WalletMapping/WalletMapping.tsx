@@ -1,13 +1,14 @@
-import { Button, Card, Flex, Text, useToast } from "@chakra-ui/react"
-import { useContext, useEffect, useState } from "react"
+import { Button, Card, Flex, Text, theme, useToast } from "@chakra-ui/react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import { EIP1193Context } from "../../contexts/EIP1193Context"
 import { shortenAddress } from "../../utils/walletAddress";
 import { passportInstance, zkEVMProvider } from "../../immutable/passport";
 import { UserProfile } from "@imtbl/sdk/passport";
 import { parseJwt } from "../../utils/jwt";
 import { useDisconnect, useWeb3Modal } from "@web3modal/ethers5/react";
-import { createAddressMapping, getAddressMapping } from "../../apis/migration";
+import { createAddressMapping, getEOAAddressMapping, getPassportAddressMapping } from "../../apis/migration";
 import { Web3Provider } from "@ethersproject/providers";
+import { MigrationContext } from "../../contexts/MigrationContext";
 
 interface WalletMapping {
   passportAddress: string;
@@ -18,21 +19,19 @@ export const WalletMapping = ({
   setPassportAddress
 }: WalletMapping) => {
   const {provider, walletAddress} = useContext(EIP1193Context);
+  const { correctWalletMap, eoaAddressMapResult, setEOAAddressMapResult, passportAddressMapResult, setPassportAddressMapResult, walletMappingMessage} = useContext(MigrationContext);
   const {open} = useWeb3Modal()
   const { disconnect } = useDisconnect()
   const toast = useToast();
 
   const [passportUserInfo, setPassportUserInfo] = useState<UserProfile | null>(null);
 
-
   const [addressMapLoading, setAddressMapLoading] = useState(false);
-  const [addressMap, setAddressMap] = useState(false);
 
   const connectPassport = async () => {
     try{
       const accounts = await zkEVMProvider.request({method: 'eth_requestAccounts'});
       setPassportAddress(accounts[0]);
-      console.log(accounts);
       const userInfo = await passportInstance.getUserInfo();
       if(userInfo) {
         console.log(userInfo);
@@ -42,6 +41,28 @@ export const WalletMapping = ({
       console.log(error);
     }
   }
+
+  const fetchPassportAddressMapping = useCallback(async () => {
+    const result = await getPassportAddressMapping(passportAddress);
+    console.log(result)
+    setPassportAddressMapResult(result);
+  }, [passportAddress, setPassportAddressMapResult]);
+
+  const fetchEOAAddressMapping = useCallback(async () => {
+    setAddressMapLoading(true);
+    try{
+      const result = await getEOAAddressMapping(walletAddress);
+      console.log(result)
+      if(result) {
+        setEOAAddressMapResult(result);
+      } else {
+        await fetchPassportAddressMapping();
+      }
+    } catch(err) {
+      console.log(err)
+    }
+    setAddressMapLoading(false);
+  }, [walletAddress, setEOAAddressMapResult, fetchPassportAddressMapping])
 
   const createAddressMap = async () => {
     if(!provider) return;
@@ -58,7 +79,18 @@ export const WalletMapping = ({
 
     if(signature === "") return;
 
-    await createAddressMapping(walletAddress, signature)
+    try{
+      await createAddressMapping(walletAddress, signature)
+      toast({
+        position: 'bottom-right',
+        status: 'success',
+        duration: 4000,
+        title: 'Addresses mapped successfully'
+      })
+      await fetchEOAAddressMapping();
+    } catch(err) {
+      console.log(err);
+    }
     
     setAddressMapLoading(false);
   }
@@ -66,7 +98,6 @@ export const WalletMapping = ({
   useEffect(() => {
     const loadPassportInfo = async () => {
       const userInfo = await passportInstance.getUserInfo();
-      console.log(userInfo)
       if(userInfo) {
         setPassportUserInfo(userInfo);
       }
@@ -81,32 +112,22 @@ export const WalletMapping = ({
   }, [setPassportAddress])
 
   useEffect(() => {
-    if(walletAddress && passportUserInfo) {
-      const fetchAddressMapping = async () => {
-        setAddressMapLoading(true);
-        try{
-          const result = await getAddressMapping(walletAddress);
-          console.log(result)
-          if(result) {
-            setAddressMap(true);
-          } else {
-            toast({
-              position: 'bottom-right',
-              status: 'error',
-              duration: 4000,
-              title: 'Address mapping not found'
-            })
-            setAddressMap(false);
-          }
-        } catch(err) {
-          console.log(err)
-        }
-        setAddressMapLoading(false);
-      }
-      fetchAddressMapping();
-    }
+    setEOAAddressMapResult(null);
 
-  }, [walletAddress, passportUserInfo])
+    if(walletAddress && passportAddress) {
+      // try EOA first  
+      fetchEOAAddressMapping();
+    } else if(!walletAddress && passportAddress) {
+      fetchPassportAddressMapping();
+    }
+  }, [
+    walletAddress, 
+    passportAddress, 
+    setEOAAddressMapResult, 
+    setPassportAddressMapResult,
+    fetchEOAAddressMapping,
+    fetchPassportAddressMapping
+  ])
   
   return (
     <Card w={['90%', '500px']} p={4} bgColor={'rgba(0,0,0,0.75)'} mb={8} display={'flex'} flexDirection={'column'} gap={4}>
@@ -123,8 +144,8 @@ export const WalletMapping = ({
       <Text><strong>Source wallet:</strong> {shortenAddress(walletAddress)}</Text>
       <Text wordBreak={'keep-all'}><strong>Passport:</strong> {passportUserInfo 
         && `${shortenAddress(passportAddress)} | ${passportUserInfo?.email}` }</Text>
-      {walletAddress && passportAddress && !addressMap && <Button colorScheme="blue" isLoading={addressMapLoading} onClick={createAddressMap}>Link wallets</Button>}
-      {walletAddress && passportAddress && addressMap && <Text>Addresses successfully mapped</Text>}
+      {walletAddress && passportAddress && !eoaAddressMapResult && !passportAddressMapResult && <Button colorScheme="blue" isLoading={addressMapLoading} onClick={createAddressMap}>Link wallets</Button>}
+      <Text wordBreak={"keep-all"} color={correctWalletMap ? theme.colors.green["600"] : theme.colors.red["500"]}>{walletMappingMessage}</Text>
     </Card>
   )
 }

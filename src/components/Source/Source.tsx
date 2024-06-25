@@ -8,12 +8,10 @@ import { SOURCE_TOKEN_ABI } from "../../config/migration";
 import { TokenBurn } from "../../types/migration";
 import { MigrationContext } from "../../contexts/MigrationContext";
 import config, { applicationEnvironment } from "../../config/config";
-interface Source {
-  passportAddress: string
-}
-export const Source = ({passportAddress}: Source) => {
+
+export const Source = () => {
   const { provider, walletAddress } = useContext(EIP1193Context);
-  const { successfulBurns, setSuccessfulBurns } = useContext(MigrationContext);
+  const { successfulBurns, setSuccessfulBurns, correctWalletMap } = useContext(MigrationContext);
   const toast = useToast();
 
   const [fetchNFTsLoading, setFetchNFTsLoading] = useState(false);
@@ -28,8 +26,18 @@ export const Source = ({passportAddress}: Source) => {
     setFetchNFTsLoading(false);
   }, [walletAddress])
 
-  const burnNFT = async (tokenId: string) => {
+  const burnNFT = useCallback(async (tokenId: string) => {
     if(!provider || !provider.request) return;
+
+    if(!correctWalletMap) {
+      toast({
+        status: 'error',
+        duration: 4000,
+        position: 'bottom-right',
+        title: 'Please correct your wallet mapping before proceeding'
+      })
+      return;
+    }
 
     // Check network first
     const currentProviderChain = await provider!.request({method: 'eth_chainId'});
@@ -94,15 +102,15 @@ export const Source = ({passportAddress}: Source) => {
     } finally {
       setBurnLoading(false);
     }
-  }
+  }, [correctWalletMap, provider, setSuccessfulBurns, toast, walletAddress])
 
   useEffect(() => {
-    if(walletAddress && passportAddress) {
+    if(correctWalletMap) {
       fetchNFTs();
     } else {
       setSourceNFTs([]);
     }
-  }, [walletAddress, passportAddress, fetchNFTs])
+  }, [correctWalletMap, fetchNFTs])
 
   return (
     <Card minH={"600px"} minW="xs" w={["100%", "430px"]} bgColor={'rgba(0,0,0,0.75)'}>

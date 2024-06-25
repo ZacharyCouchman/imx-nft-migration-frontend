@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, Flex, Image, Heading, Text, VStack } from "@chakra-ui/react"
+import { Button, Card, CardBody, CardFooter, Flex, Image, Heading, Text, VStack, Link } from "@chakra-ui/react"
 import { useCallback, useContext, useEffect, useState } from "react";
 import { EIP1193Context } from "../../contexts/EIP1193Context";
 import { getZkEvmNFTsForAddress } from "../../apis/immutable";
@@ -8,14 +8,9 @@ import { zkEVMDataClient } from "../../immutable/blockchainData";
 import { MigrationContext } from "../../contexts/MigrationContext";
 import config, { applicationEnvironment } from "../../config/config";
 
-interface Destination {
-  passportAddress: string
-}
-export const Destination = ({
-  passportAddress
-}: Destination) => {
+export const Destination = () => {
   const {walletAddress} = useContext(EIP1193Context);
-  const { successfulBurns } = useContext(MigrationContext);
+  const { successfulBurns, passportAddress } = useContext(MigrationContext);
 
   const [fetchNFTsRefresh, setFetchNFTsRefresh] = useState(false);
   const [fetchNFTsLoading, setFetchNFTsLoading] = useState(false);
@@ -83,7 +78,7 @@ export const Destination = ({
           <Image src={collection?.image} width={200} alt="CryptoBirds" borderRadius={8} />
           {!fetchNFTsLoading && zkEvmNFTs.length > 0 && zkEvmNFTs.map((zkEvmNFT: Nft) => (
               <Flex key={zkEvmNFT.token_id} flexDirection={'row'} gap={4} justifyContent={'flex-start'} alignItems={'flex-start'} paddingX={4} paddingY={2} borderRadius={4}>
-                <Heading size="sm" wordBreak={"break-word"}>zkEVM Token {zkEvmNFT.token_id}</Heading>
+                <Link href="https://passport.immutable.com/inventory"><Heading size="sm" wordBreak={"break-word"}>Token {zkEvmNFT.token_id}</Heading></Link>
               </Flex>
           ))}
         </VStack>
