@@ -22,7 +22,7 @@ export const sepolia = {
 
 export const polygon = {
   chainId: 137,
-  name: 'Polygon Mainnet',
+  name: 'Polygon',
   currency: 'MATIC',
   explorerUrl: 'https://polygonscan.com/',
   rpcUrl: 'https://polygon-rpc.com'

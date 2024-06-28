@@ -78,7 +78,7 @@ export const Destination = () => {
           <Image src={collection?.image} width={200} alt="CryptoBirds" borderRadius={8} />
           {!fetchNFTsLoading && zkEvmNFTs.length > 0 && zkEvmNFTs.map((zkEvmNFT: Nft) => (
               <Flex key={zkEvmNFT.token_id} flexDirection={'row'} gap={4} justifyContent={'flex-start'} alignItems={'flex-start'} paddingX={4} paddingY={2} borderRadius={4}>
-                <Link href="https://passport.immutable.com/inventory"><Heading size="sm" wordBreak={"break-word"}>Token {zkEvmNFT.token_id}</Heading></Link>
+                <Link href="https://passport.sandbox.immutable.com/inventory"><Heading size="sm" wordBreak={"break-word"}>Token {zkEvmNFT.token_id}</Heading></Link>
               </Flex>
           ))}
         </VStack>
