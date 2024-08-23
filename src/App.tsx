@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Source } from './components/Source/Source';
 import { Destination } from './components/Destination/Destination';
 import { createWeb3Modal } from '@web3modal/ethers5/react'
-import { ethersConfig, polygon, projectId } from './config/web3modal';
+import { ethersConfig, mainnet, polygon, projectId } from './config/web3modal';
 import config, { applicationEnvironment } from './config/config';
 import { EIP1193Context } from './contexts/EIP1193Context';
 import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
@@ -16,7 +16,7 @@ import { MigrationContext } from './contexts/MigrationContext';
 // Create a Web3Modal instance
 createWeb3Modal({
   ethersConfig,
-  chains: [polygon],
+  chains: [mainnet, polygon],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   themeMode: 'dark',

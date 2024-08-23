@@ -41,7 +41,7 @@ export const Source = () => {
 
     // Check network first
     const currentProviderChain = await provider!.request({method: 'eth_chainId'});
-    if(currentProviderChain !== config[applicationEnvironment].migration.sourceChainId) {
+    if(parseInt(currentProviderChain) !== config[applicationEnvironment].migration.sourceChainId) {
       // must switch to source chain
       try {
         await provider.request({method: 'wallet_switchEthereumChain', params: [{chainId: `0x${config[applicationEnvironment].migration.sourceChainId.toString(16)}`}]})
@@ -60,6 +60,7 @@ export const Source = () => {
         SOURCE_TOKEN_ABI,
         web3Provider.getSigner()
       )
+      // Depending on the smart contract used, this line may need to change to call the burn method. See SOURCE_TOKEN_ABI to match the function on your smart contract
       burnTransaction = await sourceNFTContract.safeTransferFrom(walletAddress, config[applicationEnvironment].migration.burnAddress, tokenId);
       toast({
         position: 'bottom-right',
