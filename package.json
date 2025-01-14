@@ -14,7 +14,7 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@imtbl/sdk": "^1.46.4",
+    "@imtbl/sdk": "^1.77.5",
     "@web3modal/ethers5": "^4.1.11",
     "bignumber.js": "^4.0.4",
     "buffer": "^6.0.3",
